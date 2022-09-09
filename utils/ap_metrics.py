@@ -15,9 +15,9 @@ class APMeter:
         self.detections.append_image(image_id)
         for box, sc in zip(pred_boxes, pred_scores):
             box = box.tolist()
-            x, y, w, h = box[0], box[1], box[2]-box[0] + 1, box[3] - box[1] + 1
+            x, y, w, h, cl = box[0], box[1], box[2]-box[0] + 1, box[3] - box[1] + 1, int(box[4])
             self.detections.append(image_id, 
-                class_label=box[4],
+                class_label=cl,
                 x_top_left=x,
                 y_top_left=y,
                 width=w,
@@ -26,9 +26,10 @@ class APMeter:
 
         self.annotations.append_image(image_id)
         for box in gt_boxes:
-            x, y, w, h = box[0], box[1], box[2]-box[0] + 1, box[3] - box[1] + 1
+            box = box.tolist()
+            x, y, w, h, cl = box[0], box[1], box[2]-box[0] + 1, box[3] - box[1] + 1, int(box[4])
             self.annotations.append(image_id, 
-                class_label=box[4],
+                class_label=cl,
                 x_top_left=x,
                 y_top_left=y,
                 width=w,
