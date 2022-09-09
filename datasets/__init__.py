@@ -1,4 +1,4 @@
-from ml4vision.ml import ObjectDetectionDataset as RemoteObjectDetectionDataset
+from ml4vision.ml.datasets import ObjectDetectionDataset as RemoteObjectDetectionDataset
 from .mapping import mapping
 
 def get_dataset(name, dataset_kwargs={}):

@@ -4,4 +4,5 @@ torchvision>=0.10.0
 segmentation_models_pytorch>=0.2.1
 opencv-python-headless<4.3 #required on colab
 albumentations>=1.1.0
-brambox>=4.0.0
+brambox==4.0.0
+yacs
