@@ -148,8 +148,8 @@ class Engine:
                     ap_meter.add_detections(pred, scores, gt)
 
         # get ap metric
-        ap, ap_dict = ap_meter.get_ap()
-        metrics = {'map': ap, 'working_point': ap_dict}
+        map_50, map, ap_dict = ap_meter.get_ap()
+        metrics = {'map_50': map_50, 'map': map, 'working_point': ap_dict}
 
         return loss_meter.avg, metrics
 
@@ -212,3 +212,45 @@ class Engine:
 
             if epoch == self.config.solver.max_epochs:
                 break
+
+    def upload(self, project):
+        
+        config = self.config
+
+        # load best ap model
+        model = self.get_model(config, torch.device('cpu'))
+        state = torch.load(os.path.join(config.save_location, 'best_ap_model.pth'), map_location='cpu')
+        model.load_state_dict(state['model_state_dict'], strict=True)
+        model.eval()
+
+        # trace model
+        traced_model = torch.jit.trace(model, torch.randn(1, 3, config.transform.min_size, config.transform.min_size)) 
+        traced_model.save(os.path.join(config.save_location, 'best_ap_model.pt'))
+
+        # upload model
+        remote_model = project.client.get_or_create_model(
+            f"{project.name}-model",
+            description='',
+            project=project.uuid,
+            categories=project.categories,
+            annotation_type="BBOX",
+            architecture="object_detection_fn"
+        )
+
+        print('uploading model to ml4vision ...')
+
+        remote_model.add_version(
+            os.path.join(config.save_location, 'best_ap_model.pt'),
+            params = {
+                'min_size': config.transform.min_size if config.transform.resize else False,
+                'pad': 32,
+                'normalize': True,
+                'threshold': float(state["metrics"]["working_point"]["confidence"])
+            },
+            metrics = {
+                'map_50': round(state["metrics"]["map_50"], 3),
+                'map': round(state["metrics"]["map"], 3),
+                'precision': round(state["metrics"]["working_point"]["precision"], 3),
+                'recall': round(state["metrics"]["working_point"]["recall"], 3)
+            }
+        )

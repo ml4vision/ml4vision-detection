@@ -40,9 +40,9 @@ class APMeter:
         ann = self.annotations.get_df()
         
         # calculate ap
-        # ap = bb.stat.ap(pr)
         coco = bb.eval.COCO(det, ann)
-        ap = coco.mAP_coco
+        coco.compute(map_50=True, map_coco=True)
+        map_50, map = coco.mAP_50, coco.mAP_coco
 
         # calculate best F1
         pr = bb.stat.pr(det, ann, 0.5)
@@ -52,7 +52,7 @@ class APMeter:
         # Find point on PR-curve that matches the computed detection threshold
         pr_point = bb.stat.point(pr, threshold.confidence)
 
-        return ap, dict(confidence=threshold.confidence, 
+        return map_50, map, dict(confidence=threshold.confidence, 
                         f1=threshold.f1, 
                         precision=pr_point.precision, 
                         recall=pr_point.recall)

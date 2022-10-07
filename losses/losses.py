@@ -12,7 +12,7 @@ def centernet_loss(pred, heatmap, scalemap, classmap):
 
 def l1_loss(pred, gt):
     valid = gt > 0
-    n_points = valid.sum()//2
+    n_points = valid.sum()
     loss = 0
     if n_points > 0:
         loss = abs(pred[valid] - gt[valid]).sum() / n_points
