@@ -1,6 +1,6 @@
 from engine import Engine
 from configs.config import get_config
-from ml4vision.client import Client
+from ml4vision.client import Client, Project
 
 API_KEY = 'API_KEY'
 PROJECT_NAME = 'PROJECT_NAME'
@@ -10,7 +10,7 @@ PROJECT_OWNER = None
 client = Client(API_KEY)
 
 # load project
-project = client.get_project_by_name(PROJECT_NAME, owner=PROJECT_OWNER)
+project = Project.get_by_name(client, PROJECT_NAME, owner=PROJECT_OWNER)
 project_location = project.pull(location='./data')
 
 # get config
