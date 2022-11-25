@@ -233,6 +233,9 @@ class Engine:
             model = MLModel.create(
                 project.client,
                 f'{project.name}-model',
+                description='',
+                type='BBOX',
+                public=project.public,
                 project=project.uuid
             )
         else:
